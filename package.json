@@ -1,0 +1,22 @@
+{
+  "name": "piece_chain",
+  "version": "1.0.0",
+  "description": "a javascript implementation of the piece chain",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/disordinary/piece_chain.git"
+  },
+  "author": "Ryan McCarvill <ryan@disordinary.com> (http://www.disordinary.com)",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/disordinary/piece_chain/issues"
+  },
+  "homepage": "https://github.com/disordinary/piece_chain#readme",
+  "devDependencies": {
+    "mocha": "^2.4.5"
+  }
+}
