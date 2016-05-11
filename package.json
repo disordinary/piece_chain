@@ -10,6 +10,7 @@
     "type": "git",
     "url": "git+https://github.com/disordinary/piece_chain.git"
   },
+   "engines" : { "node" : ">=6.0.0" },
   "author": "Ryan McCarvill <ryan@disordinary.com> (http://www.disordinary.com)",
   "license": "Apache-2.0",
   "bugs": {
