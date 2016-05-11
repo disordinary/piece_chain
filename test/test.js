@@ -7,7 +7,7 @@ var PieceChain = require("../index.js");
  }
 
 var test_string = "";
-var lengthOfTestString = 1000;
+var lengthOfTestString = 1000000;
 for( var i = 0; i < lengthOfTestString; i++ ) {
 	test_string+= i%10;
 }
@@ -135,13 +135,13 @@ describe( "PieceChain insertion tests" , ( ) => {
 });
 
 describe( "PieceChain deletion tests" , ( ) => {
-	it( 'I can delete within one piece' , ( done ) => {
+	/*it( 'I can delete within one piece' , ( done ) => {
 		var pc = new PieceChain( test_string );
 		var delTestString = test_string;
 		pc.del( 100 , 4 );
 		delTestString = stringSplice(delTestString , 100 , 4 );
 
-		
+
 		assert.equal( pc.toString( ) , delTestString );
 		assert.equal( pc.length , delTestString.length );
 		done();
@@ -155,11 +155,11 @@ describe( "PieceChain deletion tests" , ( ) => {
 		assert.equal( pc.toString( ) , delTestString );
 		assert.equal( pc.length , delTestString.length );
 		done();
-	});
+	});*/
 });
 
 
-/*describe( "PieceChain benchmarking" , ( ) => {
+describe( "PieceChain benchmarking" , ( ) => {
 	var pc = new PieceChain( test_string );
 	var benchMarkString = test_string;
 	it( 'The PieceChain should be faster at insertions than a string' , ( done ) => {
@@ -182,5 +182,5 @@ describe( "PieceChain deletion tests" , ( ) => {
 		console.log( "The PieceChain did it in: " + pcTime + "ms, String manipulation did it in: " + stringTime +"ms" );
 		done();
 	} );
-} );*/
+} );
 
