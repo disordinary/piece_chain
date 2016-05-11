@@ -14,23 +14,24 @@ Benchmarks show a 10x speed improvement over javascript strings.
 The other benefit of a piece chain is that it offers undo support virtually free.
 
 ToDo: 
- * Deletions are having issues.
- * Add undo support.
- * Add replace (which is simply a deletion followed by an insert).
- * Streams.
+* Deletions are having issues.
+* Add undo support.
+* Add replace (which is simply a deletion followed by an insert).
+* Streams.
 
  ## Note:
  This only works in node 6, it uses plenty of ES6 goodness.
 
  ##Install:
 
- `npm install piece_chain`
+`npm install piece_chain`
 
 ##How To:
 
- `var PC = require('piece_chain');
-
- var pc = new PC( A_VERY_LONG_STRING );
- pc.insert( offset, ANOTHER_STRING );
- pc.del( offset , length );
- pc.toString();`
+```javascript
+var PC = require('piece_chain');
+var pc = new PC( A_VERY_LONG_STRING );
+pc.insert( offset, ANOTHER_STRING );
+pc.del( offset , length );
+pc.toString();
+```
