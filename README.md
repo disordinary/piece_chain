@@ -16,15 +16,17 @@ The other benefit of a piece chain is that it offers undo support virtually free
 ToDo: 
  * Deletions are having issues.
  * Add undo support.
- * Add replace (which is simply a deletion followed by an insert)
- * Streams
+ * Add replace (which is simply a deletion followed by an insert).
+ * Streams.
 
  ## Note:
  This only works in node 6, it uses plenty of ES6 goodness.
 
- ##How To:
+ ##Install:
 
  `npm install piece_chain`
+
+##How To:
 
  `var PC = require('piece_chain');
 
