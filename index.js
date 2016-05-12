@@ -1,20 +1,25 @@
+"use strict";
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 // A piece chain is a double linked list of text, it's similar to a piece tree but easier to impliment.
 // It's used to manipulate large chunks of text efficiently and quickly, it also has virtually unlimited undo.
 
-const SPAN_SIZE = 256; //the size of a span
+var SPAN_SIZE = 256; //the size of a span
 
-class PieceChain {
-	constructor( str ) {
-		
-		this.length =  0;
-		this.head = new Span( );
-		this.tail = new Span( );
-		this._modifyBuffer = [ ];
-		if( typeof str === 'string' ) {
-			this.length = str.length
-			let pieceChain = this._string_into_spans( str );
+var PieceChain = function () {
+	function PieceChain(str) {
+		_classCallCheck(this, PieceChain);
+
+		this.length = 0;
+		this.head = new Span();
+		this.tail = new Span();
+		this._modifyBuffer = [];
+		if (typeof str === 'string') {
+			this.length = str.length;
+			var pieceChain = this._string_into_spans(str);
 
 			this.head.next = pieceChain.startSpan;
 			pieceChain.startSpan.previous = this.head;
@@ -27,188 +32,207 @@ class PieceChain {
 		}
 	}
 
+	_createClass(PieceChain, [{
+		key: "insert",
+		value: function insert(offset, str) {
 
-	insert( offset , str ) {
+			this.length += str.length;
 
-		
-		this.length += str.length;
+			var _seek2 = this._seek(offset);
 
-		let { span , cursor } = this._seek( offset ) ;
+			var span = _seek2.span;
+			var cursor = _seek2.cursor;
 
-		this._modifyBuffer.push( span );
 
-		let newSpans = this._string_into_spans( str );
-		let newStartSpan = newSpans.startSpan;
-		let newEndSpan = newSpans.endSpan;
+			this._modifyBuffer.push(span);
 
-		if( offset === 0 ) {
-			this._joinSpans( newEndSpan , this.head.next );
-			this._joinSpans( this.head , newStartSpan );
+			var newSpans = this._string_into_spans(str);
+			var newStartSpan = newSpans.startSpan;
+			var newEndSpan = newSpans.endSpan;
+
+			if (offset === 0) {
+				this._joinSpans(newEndSpan, this.head.next);
+				this._joinSpans(this.head, newStartSpan);
+				return;
+			}
+			if (offset >= this.length) {
+				this._joinSpans(this.tail.previous, newStartSpan);
+				this._joinSpans(newEndSpan, this.tail);
+				return;
+			}
+
+			var oldSpans = this._split(span, cursor);
+			var oldStartSpan = oldSpans.startSpan;
+			var oldEndSpan = oldSpans.endSpan;
+
+			//replace the old span
+			oldStartSpan.previous.next = oldStartSpan;
+			oldEndSpan.next.previous = oldEndSpan;
+
+			//insert the new spans into the chain
+			this._joinSpans(oldStartSpan, newEndSpan);
+			this._joinSpans(newStartSpan, oldEndSpan);
+		}
+	}, {
+		key: "del",
+		value: function del(offset, length) {
+			this.length -= length;
+
+			var _seek3 = this._seek(offset);
+
+			var span = _seek3.span;
+			var cursor = _seek3.cursor;
+
+
+			if (span.length - cursor > length) {
+				var _spanStart = this._split(span, offset);
+				var _spanEnd = this._split(_spanStart.endSpan, length);
+				this._joinSpans(span.previous, _spanStart.startSpan);
+				this._joinSpans(_spanEnd.endSpan, span.next);
+				this._joinSpans(_spanStart.startSpan, _spanEnd.endSpan);
+				return;
+			}
+
+			var spanStart = this._split(span, offset);
+			var theEndSpan = this._seek(offset + length);
+			var spanEnd = this._split(theEndSpan.span, theEndSpan.cursor);
+
+			spanStart.startSpan._str = ">>>" + spanStart.startSpan._str;
+			spanEnd.endSpan._str = "<<<" + spanEnd.endSpan._str;
+
+			this._joinSpans(span.previous, spanStart.startSpan);
+			this._joinSpans(spanEnd.endSpan, span.next);
+			this._joinSpans(spanStart.startSpan, spanEnd.endSpan);
 			return;
 		}
-		if( offset >= this.length ) {
-			this._joinSpans( this.tail.previous  , newStartSpan );
-			this._joinSpans( newEndSpan , this.tail );
-			return;
-		}
-
-		
-		
-		let oldSpans = this._split( span , cursor );
-		let oldStartSpan = oldSpans.startSpan;
-		let oldEndSpan = oldSpans.endSpan;
- 
-		//replace the old span
-		oldStartSpan.previous.next = oldStartSpan;
-		oldEndSpan.next.previous = oldEndSpan;
-
-		//insert the new spans into the chain
-		this._joinSpans( oldStartSpan , newEndSpan );
-		this._joinSpans( newStartSpan , oldEndSpan );
-	}
-
-	del( offset , length ) {
-		this.length -= length;
-		let {span , cursor} = this._seek( offset );
-	
-		if( span.length - cursor > length ) {
-			let spanStart = this._split( span , offset );
-			let spanEnd = this._split( spanStart.endSpan , length );
-			this._joinSpans( span.previous , spanStart.startSpan );
-			this._joinSpans( spanEnd.endSpan , span.next  );
-			this._joinSpans( spanStart.startSpan , spanEnd.endSpan );
-			return;
-		} 
-
-
-			let spanStart = this._split( span , offset );
-			let theEndSpan = this._seek( offset + length )
-			let spanEnd = this._split( theEndSpan.span , theEndSpan.cursor );
-
-			spanStart.startSpan._str = ">>>" + spanStart.startSpan._str ;
-		spanEnd.endSpan._str = "<<<" + spanEnd.endSpan._str ;
-
-			this._joinSpans( span.previous , spanStart.startSpan );
-			this._joinSpans( spanEnd.endSpan , span.next  );
-			this._joinSpans( spanStart.startSpan , spanEnd.endSpan );
-		return;
-		
-	}
-
-	toString( ) {
-		var piece = this.head;
+	}, {
+		key: "toString",
+		value: function toString() {
+			var piece = this.head;
 
 			var string = "";
 
-			while( piece.next ) {
-				string += ( piece.str || "" );
+			while (piece.next) {
+				string += piece.str || "";
 				piece = piece.next;
 			}
 
 			return string;
-	}
+		}
+	}, {
+		key: "_joinSpans",
+		value: function _joinSpans(startSpan, endSpan) {
+			startSpan.next = endSpan;
+			endSpan.previous = startSpan;
+		}
+	}, {
+		key: "_string_into_spans",
+		value: function _string_into_spans(str) {
+			var startSpan = void 0;
+			var endSpan = void 0;
+			if (str.length < SPAN_SIZE) {
 
-	_joinSpans( startSpan , endSpan ) {
-		startSpan.next = endSpan;
-		endSpan.previous = startSpan;
-	}
+				var _startSpan = endSpan = new Span(str);
 
-
-	_string_into_spans( str  ) {
-		let startSpan;
-		let endSpan;
-		if( str.length < SPAN_SIZE ) {
-
-			let startSpan = endSpan = new Span( str );
-
-			return { startSpan , endSpan};
-		} 
-		for( var i = 0 ; i < str.length; i+= SPAN_SIZE ) {
-			let span = new Span( str.slice( i , i+SPAN_SIZE ) );
-			
-			if( endSpan ) {
-				span.previous = endSpan;
-				endSpan.next = span;
-			} else {
-				startSpan = span;
+				return { startSpan: _startSpan, endSpan: endSpan };
 			}
-			endSpan = span;
+			for (var i = 0; i < str.length; i += SPAN_SIZE) {
+				var span = new Span(str.slice(i, i + SPAN_SIZE));
+
+				if (endSpan) {
+					span.previous = endSpan;
+					endSpan.next = span;
+				} else {
+					startSpan = span;
+				}
+				endSpan = span;
+			}
+			return { startSpan: startSpan, endSpan: endSpan }; //the last span in a mini chain
 		}
-		return { startSpan , endSpan}; //the last span in a mini chain
-	}
+	}, {
+		key: "_split",
+		value: function _split(span, offset) {
 
-	_split( span , offset ) {
-		
-		let startSpan = new Span( span.str.slice( 0 , offset ) , span.previous  );
-		let endSpan = new Span( span.str.slice( offset ) , startSpan , span.next);
-		startSpan.next = endSpan;
-		return{ startSpan , endSpan };
-	}
-
-	_clone( span ) {
-		return new Span( span.content , span.previous , span.next );
-	}
-
-	createSpan( str ) {
-		return new Span( str );
-	}
-
-	_seek( offset ) {
-		let combinedOffset = 0;
-		let listSpan = this.head;
-
-		
-		while( listSpan.next && offset > combinedOffset + listSpan.length ) {
-			combinedOffset += listSpan.length;
-			listSpan = listSpan.next;
+			var startSpan = new Span(span.str.slice(0, offset), span.previous);
+			var endSpan = new Span(span.str.slice(offset), startSpan, span.next);
+			startSpan.next = endSpan;
+			return { startSpan: startSpan, endSpan: endSpan };
 		}
-
-		return {
-			  span : listSpan
-			, cursor : offset - combinedOffset
+	}, {
+		key: "_clone",
+		value: function _clone(span) {
+			return new Span(span.content, span.previous, span.next);
 		}
+	}, {
+		key: "createSpan",
+		value: function createSpan(str) {
+			return new Span(str);
+		}
+	}, {
+		key: "_seek",
+		value: function _seek(offset) {
+			var combinedOffset = 0;
+			var listSpan = this.head;
 
-	}
+			while (listSpan.next && offset > combinedOffset + listSpan.length) {
+				combinedOffset += listSpan.length;
+				listSpan = listSpan.next;
+			}
 
-	get _spanSize( ) {
-		//return the span size for testing;
-		return SPAN_SIZE;
-	}
+			return {
+				span: listSpan,
+				cursor: offset - combinedOffset
+			};
+		}
+	}, {
+		key: "_spanSize",
+		get: function get() {
+			//return the span size for testing;
+			return SPAN_SIZE;
+		}
+	}]);
 
-}
+	return PieceChain;
+}();
 
-class Span {
-	constructor( str , previous , next ) {
+var Span = function () {
+	function Span(str, previous, next) {
+		_classCallCheck(this, Span);
+
 		this.previous = previous;
 		this.next = next;
 		this.str = str;
 	}
-	get next( ) {
-		return this._next;
-	}
 
-	set next( value ) {
-		this._next = value;
-	}
+	_createClass(Span, [{
+		key: "next",
+		get: function get() {
+			return this._next;
+		},
+		set: function set(value) {
+			this._next = value;
+		}
+	}, {
+		key: "previous",
+		get: function get() {
+			return this._previous;
+		},
+		set: function set(value) {
+			this._previous = value;
+		}
+	}, {
+		key: "str",
+		get: function get() {
+			return this._str;
+		},
+		set: function set(value) {
 
-	get previous( ) {
-		return this._previous;
-	}
+			this._str = value || "";
+			this.length = this._str.length;
+		}
+	}]);
 
-	set previous( value ) {
-		this._previous = value;
-	}
-
-	get str() {
-		return this._str
-	}
-
-	set str( value ) {
-		
-		this._str = value || "";
-		this.length = this._str.length;
-
-	}
-}
+	return Span;
+}();
 
 module.exports = PieceChain;

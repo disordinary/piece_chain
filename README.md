@@ -19,8 +19,6 @@ ToDo:
 * Add replace (which is simply a deletion followed by an insert).
 * Streams.
 
- ## Note:
- This only works in node 6, it uses plenty of ES6 goodness.
 
  ##Install:
 
