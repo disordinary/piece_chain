@@ -7,7 +7,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 // A piece chain is a double linked list of text, it's similar to a piece tree but easier to impliment.
 // It's used to manipulate large chunks of text efficiently and quickly, it also has virtually unlimited undo.
 
-var SPAN_SIZE = 256; //the size of a span
+var SPAN_SIZE = 512; //the size of a span
 
 var PieceChain = function () {
 	function PieceChain(str) {
@@ -93,15 +93,16 @@ var PieceChain = function () {
 				return;
 			}
 
-			var spanStart = this._split(span, offset);
 			var theEndSpan = this._seek(offset + length);
+			var spanStart = this._split(span, offset);
+
 			var spanEnd = this._split(theEndSpan.span, theEndSpan.cursor);
 
-			spanStart.startSpan._str = ">>>" + spanStart.startSpan._str;
-			spanEnd.endSpan._str = "<<<" + spanEnd.endSpan._str;
+			spanStart.startSpan._str = spanStart.startSpan._str;
+			spanEnd.endSpan._str = spanEnd.endSpan._str;
 
 			this._joinSpans(span.previous, spanStart.startSpan);
-			this._joinSpans(spanEnd.endSpan, span.next);
+			this._joinSpans(spanEnd.endSpan, spanEnd.endSpan.next);
 			this._joinSpans(spanStart.startSpan, spanEnd.endSpan);
 			return;
 		}
@@ -236,3 +237,4 @@ var Span = function () {
 }();
 
 module.exports = PieceChain;
+

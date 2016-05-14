@@ -7,10 +7,11 @@ var PieceChain = require("../index.js");
  }
 
 var test_string = "";
-var lengthOfTestString = 1000000;
+var lengthOfTestString = 10000000;
 for( var i = 0; i < lengthOfTestString; i++ ) {
 	test_string+= i%10;
 }
+
 
 
 
@@ -134,8 +135,11 @@ describe( "PieceChain insertion tests" , ( ) => {
 
 });
 
+
+
+
 describe( "PieceChain deletion tests" , ( ) => {
-	/*it( 'I can delete within one piece' , ( done ) => {
+	it( 'I can delete within one piece' , ( done ) => {
 		var pc = new PieceChain( test_string );
 		var delTestString = test_string;
 		pc.del( 100 , 4 );
@@ -155,9 +159,62 @@ describe( "PieceChain deletion tests" , ( ) => {
 		assert.equal( pc.toString( ) , delTestString );
 		assert.equal( pc.length , delTestString.length );
 		done();
-	});*/
+	});
 });
 
+
+
+describe( "Compare a large amount of inserts" , ( ) => {
+	var pc = new PieceChain( test_string );
+	var benchMarkString = test_string;
+	it( 'Inserts should be identical even over a larg amount' , ( done ) => {
+		var stringStartTime = Date.now();
+		var insertPos = Math.random( ) * lengthOfTestString;
+		for( var i = 0; i < 1000; i++ ) {
+			benchMarkString = stringSplice( benchMarkString ,insertPos, 0 , "TEST" );
+			pc.insert( insertPos , "TEST" );
+
+		}
+		assert.equal( benchMarkString , pc.toString() );
+		
+		done();
+	} );
+} );
+
+describe( "Compare a large amount of deletes" , ( ) => {
+/*	var pc = new PieceChain( test_string );
+	var benchMarkString = test_string;
+	it( 'Deletes should be identical even over a larg amount' , ( done ) => {
+		var stringStartTime = Date.now();
+		
+		for( var i = 0; i < 10; i++ ) {
+			var insertPos = Math.floor( Math.random( ) * lengthOfTestString  );
+			benchMarkString = stringSplice( benchMarkString ,insertPos, 100);
+			pc.del( insertPos , 100 );
+			assert.equal( benchMarkString , pc.toString() , "failed on: " + i + ", insertPos: " + insertPos);
+
+		}
+		assert.equal( benchMarkString , pc.toString() );
+		
+		done();
+	} );*/
+} );
+
+describe( "Manipulate small strings (less than one span)" , ( ) => {
+
+});
+
+describe( "Splice test" , ( ) => {
+
+});
+
+describe( "Rebalance Test" , ( ) => {
+
+});
+
+describe( "Undo Test" , ( ) => {
+
+});
 
 describe( "PieceChain benchmarking" , ( ) => {
 	var pc = new PieceChain( test_string );
@@ -165,7 +222,7 @@ describe( "PieceChain benchmarking" , ( ) => {
 	it( 'The PieceChain should be faster at insertions than a string' , ( done ) => {
 		var stringStartTime = Date.now();
 		for( var i = 0; i < 1000; i++ ) {
-			benchMarkString = stringSplice( benchMarkString , Math.random() * lengthOfTestString , 0 , "TEST" );
+			benchMarkString = stringSplice( benchMarkString , Math.random() * benchMarkString.length , 0 , "TEST" );
 		}
 
 		var stringTime = Date.now( ) - stringStartTime ;
@@ -173,7 +230,7 @@ describe( "PieceChain benchmarking" , ( ) => {
 
 		var pcStartTime = Date.now();
 		for( var i = 0; i < 1000; i++ ) {
-			pc.insert( Math.random() * lengthOfTestString , "TEST" );
+			pc.insert( Math.random() * pc.length , "TEST" );
 		//	benchMarkString = stringSplice( benchMarkString , Math.random() * lengthOfTestString , 0 , "TEST" );
 		}
 

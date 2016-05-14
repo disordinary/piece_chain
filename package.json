@@ -1,6 +1,6 @@
 {
   "name": "piece_chain",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "a javascript implementation of the piece chain",
   "main": "index.js",
   "scripts": {

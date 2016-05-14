@@ -80,16 +80,16 @@ class PieceChain {
 			return;
 		} 
 
-
+			let theEndSpan = this._seek( offset + length );
 			let spanStart = this._split( span , offset );
-			let theEndSpan = this._seek( offset + length )
+			
 			let spanEnd = this._split( theEndSpan.span , theEndSpan.cursor );
 
-			spanStart.startSpan._str = ">>>" + spanStart.startSpan._str ;
-		spanEnd.endSpan._str = "<<<" + spanEnd.endSpan._str ;
+			spanStart.startSpan._str =  spanStart.startSpan._str ;
+			spanEnd.endSpan._str = spanEnd.endSpan._str ;
 
 			this._joinSpans( span.previous , spanStart.startSpan );
-			this._joinSpans( spanEnd.endSpan , span.next  );
+			this._joinSpans( spanEnd.endSpan , spanEnd.endSpan.next  );
 			this._joinSpans( spanStart.startSpan , spanEnd.endSpan );
 		return;
 		
